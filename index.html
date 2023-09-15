@@ -1,24 +1,165 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="styles.css">
-    <title>Pomodoro Timer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f5f5f5;
+        }
+
+        h1 {
+            font-size: 24px;
+        }
+
+        #timer {
+            font-size: 100px;
+            margin: 20px 0;
+        }
+
+        #colorPicker {
+            margin: 10px;
+        }
+
+        #bgColorPicker {
+            margin: 10px;
+        }
+
+        #textSizeInput {
+            margin: 10px;
+        }
+    </style>
 </head>
 <body>
-    <div class="top-left">
-        <p class="discord-text">Join Discord & Telegram<br>Link in Description</p>
-    </div>
-    <div class="top-right">
-        <p class="session-text">Session <span id="session-number">1</span>/7</p>
-    </div>
-    <div class="bottom-left">
-        <p id="indian-time">day: date: time</p>
-    </div>
-    <div class="bottom-right">
-        <div id="pomodoro-timer">00:00</div>
-    </div>
-    <script src="script.js"></script>
+    <h1>Pomodoro Timer</h1>
+
+    <!-- Timer Color Picker -->
+    <label for="colorPicker">Choose Timer Color:</label>
+    <input type="color" id="colorPicker" value="#ff5733">
+
+    <!-- Background Color Picker -->
+    <label for="bgColorPicker">Choose Background Color:</label>
+    <input type="color" id="bgColorPicker" value="#f5f5f5">
+
+    <!-- Focus and Break Time Inputs -->
+    <label for="focusTime">Focus Time (minutes):</label>
+    <input type="number" id="focusTime" value="25">
+    
+    <label for="breakTime">Break Time (minutes):</label>
+    <input type="number" id="breakTime" value="5">
+
+    <!-- Timer Display -->
+    <div id="timer">25:00</div>
+
+    <!-- Text Size Input -->
+    <label for="textSizeInput">Text Size (px):</label>
+    <input type="number" id="textSizeInput" value="100">
+
+    <!-- Start, Focus, Break, Apply Color, and Sound Buttons -->
+    <button id="startButton">Start</button>
+    <button id="focusButton">Focus</button>
+    <button id="breakButton">Break</button>
+    <button id="applyColorButton">Apply Color</button>
+    <button id="playSoundButton">Play Sound</button>
+
+    <!-- Define an invisible audio element for the alarm sound -->
+    <audio id="alarmSound" style="display: none">
+        <source src="your_sound_file_url_here" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
+    <script>
+        let timeLeft = 25 * 60; // Initial time: 25 minutes in seconds
+        let intervalId;
+
+        function updateTimerDisplay() {
+            const timerElement = document.getElementById("timer");
+            const textSize = document.getElementById("textSizeInput").value;
+            timerElement.style.fontSize = textSize + "px";
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function startTimer() {
+            intervalId = setInterval(function () {
+                if (timeLeft > 0) {
+                    timeLeft--;
+                    updateTimerDisplay();
+                } else {
+                    clearInterval(intervalId);
+                    playAlarmSound(); // Play the alarm sound when the timer hits 0
+                    alert("Time's up!");
+                }
+            }, 1000);
+        }
+
+        function playAlarmSound() {
+            const alarmSound = document.getElementById("alarmSound");
+            alarmSound.play();
+        }
+
+        // Event listener for timer color input change
+        document.getElementById("colorPicker").addEventListener("input", function () {
+            const timerElement = document.getElementById("timer");
+            timerElement.style.color = this.value;
+        });
+
+        // Event listener for background color input change
+        document.getElementById("bgColorPicker").addEventListener("input", function () {
+            document.body.style.backgroundColor = this.value;
+        });
+
+        // Event listeners for focus and break time input change
+        document.getElementById("focusTime").addEventListener("input", function () {
+            const newFocusTime = parseInt(this.value);
+            if (!isNaN(newFocusTime) && newFocusTime >= 0) {
+                timeLeft = newFocusTime * 60;
+                updateTimerDisplay();
+            }
+        });
+
+        document.getElementById("breakTime").addEventListener("input", function () {
+            const newBreakTime = parseInt(this.value);
+            if (!isNaN(newBreakTime) && newBreakTime >= 0) {
+                timeLeft = newBreakTime * 60;
+                updateTimerDisplay();
+            }
+        });
+
+        // Event listeners for start, focus, break, apply color, and sound buttons
+        document.getElementById("startButton").addEventListener("click", function () {
+            clearInterval(intervalId);
+            startTimer();
+        });
+
+        document.getElementById("focusButton").addEventListener("click", function () {
+            timeLeft = parseInt(document.getElementById("focusTime").value) * 60;
+            clearInterval(intervalId);
+            updateTimerDisplay();
+        });
+
+        document.getElementById("breakButton").addEventListener("click", function () {
+            timeLeft = parseInt(document.getElementById("breakTime").value) * 60;
+            clearInterval(intervalId);
+            updateTimerDisplay();
+        });
+
+        document.getElementById("applyColorButton").addEventListener("click", function () {
+            const timerColor = document.getElementById("colorPicker").value;
+            const timerElement = document.getElementById("timer");
+            timerElement.style.color = timerColor;
+        });
+
+        document.getElementById("playSoundButton").addEventListener("click", function () {
+            playAlarmSound(); // Play the alarm sound when the button is clicked
+        });
+
+        document.getElementById("textSizeInput").addEventListener("input", function () {
+            updateTimerDisplay();
+        });
+
+        startTimer(); // Start the timer when the page loads
+    </script>
 </body>
 </html>
